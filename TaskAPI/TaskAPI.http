@@ -1,0 +1,23 @@
+@TaskAPI_HostAddress = http://localhost:5225
+
+
+### Get all tasks
+GET {{TaskAPI_HostAddress}}/api/tasks
+
+### Create a task
+POST {{TaskAPI_HostAddress}}/api/tasks
+Content-Type: application/json
+
+{ "title": "Learn ASP.NET Core", "isCompleted": false }
+
+### Get one task
+GET {{TaskAPI_HostAddress}}/api/tasks/1
+
+### Mark it complete
+PUT {{TaskAPI_HostAddress}}/api/tasks/1
+Content-Type: application/json
+
+{ "title": "Learn ASP.NET Core", "isCompleted": true }
+
+### Delete it
+DELETE {{TaskAPI_HostAddress}}/api/tasks/1
