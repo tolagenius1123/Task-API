@@ -4,9 +4,9 @@ namespace TaskAPI.Services;
 
 public interface ITaskService
 {
-    List<TaskItem> GetAll();
-    TaskItem? GetById(int id);
-    TaskItem Create(TaskItem task);
-    bool Update(int id, TaskItem task);
-    bool Delete(int id);
+    Task<List<TaskItem>> GetAllAsync();
+    Task<TaskItem?> GetByIdAsync(int id);
+    Task<TaskItem> CreateAsync(TaskItem task);
+    Task<bool> UpdateAsync(int id, TaskItem task);
+    Task<bool> DeleteAsync(int id);
 }

@@ -1,38 +1,50 @@
+using Microsoft.EntityFrameworkCore;
+using TaskAPI.Data;
 using TaskAPI.Models;
 
 namespace TaskAPI.Services;
 
 public class TaskService : ITaskService
 {
-    private readonly List<TaskItem> _tasks = new();
-    private int _nextId = 1;
+    private readonly AppDbContext _db;
 
-    public List<TaskItem> GetAll() => _tasks;
-    public TaskItem? GetById(int id) => _tasks.FirstOrDefault(t => t.Id == id);
-    
-    public TaskItem Create(TaskItem task)
+    public TaskService(AppDbContext db)
     {
-        task.Id = _nextId++;
-        task.CreatedAt = DateTime.UtcNow;
-        _tasks.Add(task);
-        return task;
+        _db = db;
     }
 
-    public bool Update(int id, TaskItem task)
+    public async Task<List<TaskItem>> GetAllAsync()
+        => await _db.Tasks.ToListAsync();
+
+    public async Task<TaskItem?> GetByIdAsync(int id)
+        => await _db.Tasks.FindAsync(id);
+
+    public async Task<TaskItem> CreateAsync(TaskItem task)
     {
-        var existing = GetById(id);
+        task.CreatedAt = DateTime.UtcNow;
+        _db.Tasks.Add(task);
+        await _db.SaveChangesAsync();   // the INSERT happens here
+        return task;                    // EF Core has filled in task.Id
+    }
+
+    public async Task<bool> UpdateAsync(int id, TaskItem task)
+    {
+        var existing = await _db.Tasks.FindAsync(id);
         if (existing is null) return false;
 
         existing.Title = task.Title;
         existing.IsCompleted = task.IsCompleted;
+        await _db.SaveChangesAsync();   // the UPDATE happens here
         return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var task = GetById(id);
-        if (task is null) return false;
-        _tasks.Remove(task);
+        var existing = await _db.Tasks.FindAsync(id);
+        if (existing is null) return false;
+
+        _db.Tasks.Remove(existing);
+        await _db.SaveChangesAsync();   // the DELETE happens here
         return true;
     }
 }

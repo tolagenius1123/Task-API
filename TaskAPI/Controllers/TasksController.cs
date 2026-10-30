@@ -4,10 +4,9 @@ using TaskAPI.Services;
 
 namespace TaskAPI.Controllers;
 
-
 [ApiController]
 [Route("api/[controller]")]
-public class TasksController : Controller
+public class TasksController : ControllerBase
 {
     private readonly ITaskService _service;
 
@@ -17,26 +16,28 @@ public class TasksController : Controller
     }
 
     [HttpGet]
-    public ActionResult<List<TaskItem>> GetAll() => Ok(_service.GetAll());
+    public async Task<ActionResult<List<TaskItem>>> GetAll()
+        => Ok(await _service.GetAllAsync());
 
     [HttpGet("{id}")]
-    public ActionResult<TaskItem> GetById(int id)
+    public async Task<ActionResult<TaskItem>> GetById(int id)
     {
-        var task = _service.GetById(id);
+        var task = await _service.GetByIdAsync(id);
         return task is null ? NotFound() : Ok(task);
     }
 
     [HttpPost]
-    public ActionResult<TaskItem> Create(TaskItem task)
+    public async Task<ActionResult<TaskItem>> Create(TaskItem task)
     {
-        var created = _service.Create(task);
+        var created = await _service.CreateAsync(task);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id, TaskItem task) => 
-        _service.Update(id, task) ? NoContent() : NotFound();
+    public async Task<IActionResult> Update(int id, TaskItem task)
+        => await _service.UpdateAsync(id, task) ? NoContent() : NotFound();
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id) => _service.Delete(id) ? NoContent() : NotFound();
+    public async Task<IActionResult> Delete(int id)
+        => await _service.DeleteAsync(id) ? NoContent() : NotFound();
 }
